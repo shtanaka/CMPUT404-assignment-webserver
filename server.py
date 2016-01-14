@@ -1,7 +1,7 @@
 #  coding: utf-8 
 import SocketServer
 import mimetypes
-# Copyright 2013 Abram Hindle, Eddie Antonio Santos
+# Copyright 2013 Edson Gustavo Santiago Silva, Abram Hindle, Eddie Antonio Santos
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,13 +52,15 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 self.request.send('HTTP/1.1 200 OK\r\n')
                 mimetype, _ = mimetypes.guess_type(path)
                 self.request.send('content-type: ' + mimetype + '\n\n')
-#               self.request.send('\\n\n')
                 self.request.send(response)
             except Exception as e:
                 self.request.send('HTTP/1.1 404 Not Found\r\    n')
                 self.request.send('content-type: text/html\n\n')
                 self.request.send('<html><body><h1>page not found 404</h1></body></html>')
-    
+        else :
+            self.request.send('HTTP/1.1 501 Not Implemented\r\    n')
+            self.request.send('content-type: text/html\n\n')
+            self.request.send('<html><body><h1>Method not Implemented</h1></body></html>')
                 
     
 if __name__ == "__main__":
