@@ -1,6 +1,6 @@
 #  coding: utf-8 
 import SocketServer
-
+import mimetypes
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,10 +30,37 @@ import SocketServer
 class MyWebServer(SocketServer.BaseRequestHandler):
     
     def handle(self):
-        self.data = self.request.recv(1024).strip()
+        self.data = self.request.recv(1024)
         print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("OK")
+        self.data = self.data.split(" ")
+        method = self.data[0]
+        path = self.data[1]
+        response = '' 
+        path = "www/" + path[1:]
+        
+        if path[-1] == "/" :
+            path = path + "index.html"
 
+        if method == "GET" :
+            try:
+                if "/.." in path:
+                    raise Exception
+
+                file_handler = open(path, 'rb')
+                response = file_handler.read()
+                file_handler.close()
+                self.request.send('HTTP/1.1 200 OK\r\n')
+                mimetype, _ = mimetypes.guess_type(path)
+                self.request.send('content-type: ' + mimetype + '\n\n')
+#               self.request.send('\\n\n')
+                self.request.send(response)
+            except Exception as e:
+                self.request.send('HTTP/1.1 404 Not Found\r\    n')
+                self.request.send('content-type: text/html\n\n')
+                self.request.send('<html><body><h1>page not found 404</h1></body></html>')
+    
+                
+    
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
 
